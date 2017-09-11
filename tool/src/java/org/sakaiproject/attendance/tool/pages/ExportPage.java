@@ -346,7 +346,7 @@ public class ExportPage extends BasePage{
     }
 
     private String buildFileNamePrefix() {
-        final String prefix = "attendence_Export-";
+        final String prefix = "attendance_Export-";
         return prefix;
     }
 
