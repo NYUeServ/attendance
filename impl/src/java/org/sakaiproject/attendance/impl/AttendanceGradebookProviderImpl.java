@@ -17,7 +17,7 @@
 package org.sakaiproject.attendance.impl;
 
 import lombok.Setter;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.attendance.api.AttendanceGradebookProvider;
 import org.sakaiproject.attendance.logic.AttendanceLogic;
 import org.sakaiproject.attendance.logic.SakaiProxy;
@@ -37,8 +37,8 @@ import java.util.Map;
  *
  * @author Leonardo Canessa [lcanessa1 (at) udayton (dot) edu]
  */
+@Slf4j
 public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvider {
-    private static Logger log = Logger.getLogger(AttendanceGradebookProviderImpl.class);
 
     @Setter private AttendanceLogic                     attendanceLogic;
     @Setter private SakaiProxy                          sakaiProxy;
@@ -56,9 +56,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
      * {@inheritDoc}
      */
     public boolean create(AttendanceSite aS) {
-        if(log.isDebugEnabled()) {
-            log.debug("create Gradebook");
-        }
+        log.debug("create Gradebook");
 
         boolean returnVal = false;
 
@@ -91,9 +89,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
      * {@inheritDoc}
      */
     public boolean remove(AttendanceSite aS) {
-        if(log.isDebugEnabled()) {
-            log.debug("remove GB for AS " + aS.getSiteID());
-        }
+        log.debug("remove GB for AS " + aS.getSiteID());
 
         if(isGradebookDefined(aS.getSiteID())) {
             try {
@@ -111,9 +107,7 @@ public class AttendanceGradebookProviderImpl implements AttendanceGradebookProvi
      * {@inheritDoc}
      */
     public boolean update(AttendanceSite aS) {
-        if(log.isDebugEnabled()) {
-            log.debug("Updating GB for AS " + aS.getSiteID());
-        }
+        log.debug("Updating GB for AS " + aS.getSiteID());
 
         String siteID = aS.getSiteID();
         if(isGradebookDefined(siteID)) {

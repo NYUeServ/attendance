@@ -19,6 +19,7 @@ package org.sakaiproject.attendance.logic;
 import lombok.Getter;
 import lombok.Setter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -43,10 +44,8 @@ import java.util.*;
  * @author David Bauer [dbauer1 (at) udayton (dot) edu]
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
+@Slf4j
 public class SakaiProxyImpl implements SakaiProxy {
-
-	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
-
 	/**
  	* {@inheritDoc}
  	*/

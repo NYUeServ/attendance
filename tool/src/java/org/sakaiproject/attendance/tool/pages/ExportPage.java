@@ -16,6 +16,7 @@
 
 package org.sakaiproject.attendance.tool.pages;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.attendance.logic.SakaiProxy;
 import org.sakaiproject.attendance.model.*;
 import org.sakaiproject.user.api.User;
@@ -55,6 +56,7 @@ import java.util.List;
 /**
  * Created by james on 5/18/17.
  */
+@Slf4j
 public class ExportPage extends BasePage{
     enum ExportFormat {
         XLS
