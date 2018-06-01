@@ -50,7 +50,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
     private                 IModel<AttendanceRecord>    recordIModel;
     private                 boolean                     restricted ;
     private                 boolean                     showCommentsToStudents;
-    private                 List<Component>             ajaxTargets = new ArrayList<Component>();
+    // private                 List<Component>             ajaxTargets = new ArrayList<Component>();
     private                 String                      returnPage;
     private                 Status                      oldStatus;
 
@@ -66,41 +66,44 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         this.restricted = this.role != null && this.role.equals("Student");
         this.returnPage = rP;
         enable(fP);
-        this.ajaxTargets.add(this.pageFeedbackPanel);
+        // this.ajaxTargets.add(this.pageFeedbackPanel);
 
         add(createRecordInputForm());
     }
 
-    private Form<AttendanceRecord> createRecordInputForm() {
-        Form<AttendanceRecord> recordForm = new Form<AttendanceRecord>("attendanceRecord", this.recordIModel) {
-            protected void onSubmit() {
-                AttendanceRecord aR = (AttendanceRecord) getDefaultModelObject();
-                if(aR.getStatus() == null) {
-                    aR.setStatus(Status.UNKNOWN);
-                }
-                boolean result = attendanceLogic.updateAttendanceRecord(aR, oldStatus);
-                String[] resultMsgVars = new String[]{sakaiProxy.getUserSortName(aR.getUserID()), aR.getAttendanceEvent().getName(), getStatusString(aR.getStatus())};
-                StringResourceModel temp;
-                if(result){
-                    temp = new StringResourceModel("attendance.record.save.success", null, resultMsgVars);
-                    getSession().info(temp.getString());
-                    oldStatus = aR.getStatus();
-                } else {
-                    temp = new StringResourceModel("attendance.record.save.failure", null, resultMsgVars);
-                    getSession().error(temp.getString());
-                }
-            }
+    private WebMarkupContainer createRecordInputForm() {
+        // FIXME: Handle this elsewhere...
+        // Form<AttendanceRecord> recordForm = new Form<AttendanceRecord>("attendanceRecord", this.recordIModel) {
+        //     protected void onSubmit() {
+        //         AttendanceRecord aR = (AttendanceRecord) getDefaultModelObject();
+        //         if(aR.getStatus() == null) {
+        //             aR.setStatus(Status.UNKNOWN);
+        //         }
+        //         boolean result = attendanceLogic.updateAttendanceRecord(aR, oldStatus);
+        //         String[] resultMsgVars = new String[]{sakaiProxy.getUserSortName(aR.getUserID()), aR.getAttendanceEvent().getName(), getStatusString(aR.getStatus())};
+        //         StringResourceModel temp;
+        //         if(result){
+        //             temp = new StringResourceModel("attendance.record.save.success", null, resultMsgVars);
+        //             getSession().info(temp.getString());
+        //             oldStatus = aR.getStatus();
+        //         } else {
+        //             temp = new StringResourceModel("attendance.record.save.failure", null, resultMsgVars);
+        //             getSession().error(temp.getString());
+        //         }
+        //     }
+        // 
+        //     @Override
+        //     public boolean isEnabled() {
+        //         return !recordIModel.getObject().getAttendanceEvent().getAttendanceSite().getIsSyncing();
+        //     }
+        // };
 
-            @Override
-            public boolean isEnabled() {
-                return !recordIModel.getObject().getAttendanceEvent().getAttendanceSite().getIsSyncing();
-            }
-        };
+        WebMarkupContainer recordForm = new WebMarkupContainer("attendanceRecord");
 
         createStatusRadio(recordForm);
         createCommentBox(recordForm);
 
-        boolean noRecordBool = recordForm.getModelObject().getStatus().equals(Status.UNKNOWN) && restricted;
+        boolean noRecordBool = ((AttendanceRecord) this.recordIModel.getObject()).getStatus().equals(Status.UNKNOWN) && restricted;
         recordForm.setVisibilityAllowed(!noRecordBool);
 
         WebMarkupContainer noRecordContainer = new WebMarkupContainer("no-record");
@@ -110,7 +113,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         return recordForm;
     }
 
-    private void createStatusRadio(final Form<AttendanceRecord> rF) {
+    private void createStatusRadio(final WebMarkupContainer rF) {
         AttendanceStatusProvider attendanceStatusProvider = new AttendanceStatusProvider(attendanceLogic.getCurrentAttendanceSite(), AttendanceStatusProvider.ACTIVE);
         DataView<AttendanceStatus> attendanceStatusRadios = new DataView<AttendanceStatus>("status-radios", attendanceStatusProvider) {
             @Override
@@ -118,15 +121,18 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                 final Status itemStatus = item.getModelObject().getStatus();
                 Radio statusRadio = new Radio<Status>("record-status", new Model<Status>(itemStatus));
                 item.add(statusRadio);
-                statusRadio.add(new AjaxFormSubmitBehavior(rF, "onclick") {
-                    protected void onSubmit(AjaxRequestTarget target) {
-                        target.appendJavaScript("attendance.recordFormRowSetup("+ this.getAttributes().getFormId() + ");");
-                        for (Component c : ajaxTargets) {
-                            target.add(c);
-                        }
-                    }
-                });
-                ajaxTargets.add(statusRadio);
+
+                // FIXME: Handle this elsewhere...
+                // statusRadio.add(new AjaxFormSubmitBehavior(rF, "onclick") {
+                //     protected void onSubmit(AjaxRequestTarget target) {
+                //         target.appendJavaScript("attendance.recordFormRowSetup("+ this.getAttributes().getFormId() + ");");
+                //         for (Component c : ajaxTargets) {
+                //             target.add(c);
+                //         }
+                //     }
+                // });
+                // ajaxTargets.add(statusRadio);
+
                 statusRadio.setLabel(Model.of(getStatusString(itemStatus)));
                 item.add(new SimpleFormComponentLabel("record-status-name", statusRadio));
                 item.add(new Label("record-status-name-raw", itemStatus.toString()));
@@ -142,10 +148,13 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         rF.add(group);
     }
 
-    private void createCommentBox(final Form<AttendanceRecord> rF) {
+    private void createCommentBox(final WebMarkupContainer rF) {
 
         commentContainer = new WebMarkupContainer("comment-container");
         commentContainer.setOutputMarkupId(true);
+
+        // FIXME
+        commentContainer.setVisible(false);
 
         noComment = new WebMarkupContainer("no-comment");
         noComment.setOutputMarkupId(true);
@@ -164,29 +173,32 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
 
         final TextArea<String> commentBox = new TextArea<String>("comment", new PropertyModel<String>(this.recordIModel, "comment"));
 
-        final AjaxSubmitLink saveComment = new AjaxSubmitLink("save-comment") {
-            @Override
-            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                super.onSubmit(target, form);
-                if(recordIModel.getObject().getComment() != null && !recordIModel.getObject().getComment().equals("")) {
-                    noComment.setVisible(false);
-                    yesComment.setVisible(true);
-                } else {
-                    noComment.setVisible(true);
-                    yesComment.setVisible(false);
-                }
-                commentContainer.addOrReplace(noComment);
-                commentContainer.addOrReplace(yesComment);
-                for (Component c : ajaxTargets) {
-                    target.add(c);
-                }
-            }
-        };
+        // FIXME: Handle this elsewhere
+        // final AjaxSubmitLink saveComment = new AjaxSubmitLink("save-comment") {
+        //     @Override
+        //     protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+        //         super.onSubmit(target, form);
+        //         if(recordIModel.getObject().getComment() != null && !recordIModel.getObject().getComment().equals("")) {
+        //             noComment.setVisible(false);
+        //             yesComment.setVisible(true);
+        //         } else {
+        //             noComment.setVisible(true);
+        //             yesComment.setVisible(false);
+        //         }
+        //         commentContainer.addOrReplace(noComment);
+        //         commentContainer.addOrReplace(yesComment);
+        //         for (Component c : ajaxTargets) {
+        //             target.add(c);
+        //         }
+        //     }
+        // };
+        //
 
+        WebMarkupContainer saveComment = new WebMarkupContainer("save-comment");
         commentContainer.add(saveComment);
         commentContainer.add(commentBox);
 
-        ajaxTargets.add(commentContainer);
+        // ajaxTargets.add(commentContainer);
 
         if(restricted) {
             commentContainer.setVisible(showCommentsToStudents);

@@ -44,6 +44,16 @@ import org.sakaiproject.attendance.tool.panels.StatisticsPanel;
 
 import java.util.*;
 
+import org.apache.wicket.ajax.AjaxEventBehavior;
+
+import java.io.IOException;
+
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+
+
+
 /**
  * EventView is a view into an AttendanceEvent
  *
@@ -189,10 +199,6 @@ public class EventView extends BasePage {
     private void createTable() {
         Set<AttendanceRecord> records = this.attendanceEvent.getRecords();
 
-        add(new Label("student-name", new ResourceModel("attendance.event.view.student.name")));
-
-        add(new AttendanceRecordFormHeaderPanel("record-header"));
-
         // Generate records if none exist
         if(records == null || records.isEmpty()) {
             List<AttendanceRecord> recordList = attendanceLogic.updateAttendanceRecordsForEvent(this.attendanceEvent, this.attendanceEvent.getAttendanceSite().getDefaultStatus());
@@ -247,7 +253,42 @@ public class EventView extends BasePage {
         filterForm.add(groupChoice);
         filterForm.add(new Label("group-choice-label", new ResourceModel("attendance.event.view.filter")));
 
-        add(new DataView<AttendanceRecord>("records", new AttendanceRecordProvider(this.attendanceEvent, selectedGroup)) {
+
+        // AJAX handling
+        WebMarkupContainer topTable = new WebMarkupContainer("takeAttendanceTable");
+        topTable.setOutputMarkupId(true);
+
+        topTable.add(new AjaxEventBehavior("attendance.action") {
+            @Override
+            protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+                attributes.getDynamicExtraParameters().add("return [{\"name\": \"ajaxParams\", \"value\": JSON.stringify(attrs.event.extraData)}]");
+            }
+
+            @Override
+            protected void onEvent(AjaxRequestTarget target) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode params = mapper.readTree(getRequest().getRequestParameters().getParameterValue("ajaxParams").toString());
+
+                    // "BANG"
+                    System.err.println("\n*** DEBUG " + System.currentTimeMillis() + "[EventView.java:279 1db82c]: " + "\n    'BANG' => " + ("BANG") + "\n");
+
+                    // ActionResponse response = handleEvent(params.get("action").asText(), params, target);
+
+                    // FIXME: response, {}
+                    target.appendJavaScript(String.format("Attendance.ajaxComplete(%d, '%s', %s);",
+                                                          params.get("_requestId").intValue(), 200, "{}"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        topTable.add(new Label("student-name", new ResourceModel("attendance.event.view.student.name")));
+        topTable.add(new AttendanceRecordFormHeaderPanel("record-header"));
+
+        topTable.add(new DataView<AttendanceRecord>("records", new AttendanceRecordProvider(this.attendanceEvent, selectedGroup)) {
             @Override
             protected void populateItem(final Item<AttendanceRecord> item) {
                 final String stuId = item.getModelObject().getUserID();
@@ -266,5 +307,7 @@ public class EventView extends BasePage {
                 item.add(new AttendanceRecordFormDataPanel("record", item.getModel(), returnPage, feedbackPanel));
             }
         });
+
+        add(topTable);
     }
 }
