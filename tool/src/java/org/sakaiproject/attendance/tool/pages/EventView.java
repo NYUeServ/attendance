@@ -36,6 +36,8 @@ import org.sakaiproject.attendance.model.AttendanceEvent;
 import org.sakaiproject.attendance.model.AttendanceRecord;
 import org.sakaiproject.attendance.model.AttendanceStatus;
 import org.sakaiproject.attendance.model.Status;
+import org.sakaiproject.attendance.tool.actions.SetAttendanceStatusAction;
+import org.sakaiproject.attendance.tool.component.AttendanceTable;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceRecordProvider;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormDataPanel;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormHeaderPanel;
@@ -254,36 +256,9 @@ public class EventView extends BasePage {
         filterForm.add(new Label("group-choice-label", new ResourceModel("attendance.event.view.filter")));
 
 
-        // AJAX handling
-        WebMarkupContainer topTable = new WebMarkupContainer("takeAttendanceTable");
-        topTable.setOutputMarkupId(true);
+        AttendanceTable topTable = new AttendanceTable("takeAttendanceTable");
 
-        topTable.add(new AjaxEventBehavior("attendance.action") {
-            @Override
-            protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
-                super.updateAjaxAttributes(attributes);
-                attributes.getDynamicExtraParameters().add("return [{\"name\": \"ajaxParams\", \"value\": JSON.stringify(attrs.event.extraData)}]");
-            }
-
-            @Override
-            protected void onEvent(AjaxRequestTarget target) {
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode params = mapper.readTree(getRequest().getRequestParameters().getParameterValue("ajaxParams").toString());
-
-                    // "BANG"
-                    System.err.println("\n*** DEBUG " + System.currentTimeMillis() + "[EventView.java:279 1db82c]: " + "\n    'BANG' => " + ("BANG") + "\n");
-
-                    // ActionResponse response = handleEvent(params.get("action").asText(), params, target);
-
-                    // FIXME: response, {}
-                    target.appendJavaScript(String.format("Attendance.ajaxComplete(%d, '%s', %s);",
-                                                          params.get("_requestId").intValue(), 200, "{}"));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        topTable.addEventListener("setStatus", new SetAttendanceStatusAction());
 
         topTable.add(new Label("student-name", new ResourceModel("attendance.event.view.student.name")));
         topTable.add(new AttendanceRecordFormHeaderPanel("record-header"));

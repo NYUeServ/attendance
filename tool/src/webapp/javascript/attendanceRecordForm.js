@@ -54,5 +54,32 @@
         }
 
         processInput(inputs, isStudentView);
+
+        $('#takeAttendanceTable').on('click', '.status-group-container :radio', function(event) {
+            var $radio = $(event.target);
+
+            attendance.triggerAction({
+                action: 'setStatus',
+                userid: $radio.data('userid'),
+                attendanceid: $('#takeAttendanceTable').data('attendanceid'),
+                status: $radio.data('value'),
+            })
+        });
     };
+
+
+    attendance.actionCallbacks = {};
+    attendance.nextRequestId = 0;
+
+    attendance.ajaxComplete = function (requestId, status, data) {
+        attendance.actionCallbacks[requestId](status, data);
+        delete attendance.actionCallbacks[requestId];
+    };
+
+    attendance.triggerAction = function (params, callback) {
+      params['_requestId'] = attendance.nextRequestId++;
+      attendance.actionCallbacks[params['_requestId']] = callback || $.noop;
+      $('#takeAttendanceTable').trigger('attendance.action', params);
+    };
+
 }(window.attendance = window.attendance || {}, jQuery ));
