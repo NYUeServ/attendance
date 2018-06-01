@@ -5,7 +5,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serializable;
 
-public class SetAttendanceStatusAction extends InjectableAction implements Serializable {
+public class SetAttendanceStatusAction implements Action, Serializable {
 
     private static final long serialVersionUID = 1L;
 

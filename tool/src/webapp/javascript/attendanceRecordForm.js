@@ -58,11 +58,12 @@
         $('#takeAttendanceTable').on('click', '.status-group-container :radio', function(event) {
             var $radio = $(event.target);
 
+            // FIXME need to get userid, eventid and status from somewhere
             attendance.triggerAction({
                 action: 'setStatus',
-                userid: $radio.data('userid'),
-                attendanceid: $('#takeAttendanceTable').data('attendanceid'),
-                status: $radio.data('value'),
+                userid: "FIXME",
+                eventid: "FIXME",
+                status: "FIXME",
             })
         });
     };
