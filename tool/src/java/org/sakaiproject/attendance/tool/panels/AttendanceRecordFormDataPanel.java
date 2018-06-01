@@ -16,6 +16,7 @@
 
 package org.sakaiproject.attendance.tool.panels;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
@@ -121,6 +122,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                 final Status itemStatus = item.getModelObject().getStatus();
                 Radio statusRadio = new Radio<Status>("record-status", new Model<Status>(itemStatus));
                 item.add(statusRadio);
+                statusRadio.add(new AttributeModifier("data-status", itemStatus.toString()));
 
                 // FIXME: Handle this elsewhere...
                 // statusRadio.add(new AjaxFormSubmitBehavior(rF, "onclick") {

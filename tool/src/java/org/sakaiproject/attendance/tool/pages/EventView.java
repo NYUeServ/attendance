@@ -258,6 +258,8 @@ public class EventView extends BasePage {
 
         AttendanceTable topTable = new AttendanceTable("takeAttendanceTable");
 
+        topTable.add(new AttributeModifier("data-eventid", this.attendanceEvent.getId()));
+
         topTable.addEventListener("setStatus", new SetAttendanceStatusAction());
 
         topTable.add(new Label("student-name", new ResourceModel("attendance.event.view.student.name")));
@@ -278,6 +280,7 @@ public class EventView extends BasePage {
                     }
                 };
                 studentLink.add(stuName);
+                studentLink.add(new AttributeModifier("data-userid", stuId));
                 item.add(studentLink);
                 item.add(new AttendanceRecordFormDataPanel("record", item.getModel(), returnPage, feedbackPanel));
             }

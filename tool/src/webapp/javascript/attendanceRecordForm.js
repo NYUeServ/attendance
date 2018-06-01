@@ -61,9 +61,9 @@
             // FIXME need to get userid, eventid and status from somewhere
             attendance.triggerAction({
                 action: 'setStatus',
-                userid: "FIXME",
-                eventid: "FIXME",
-                status: "FIXME",
+                userid: $radio.closest('tr').find('[data-userid]').data('userid'),
+                eventid: $('#takeAttendanceTable').data('eventid'),
+                status: $radio.data('status'),
             })
         });
     };
