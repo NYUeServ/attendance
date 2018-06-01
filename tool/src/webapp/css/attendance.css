@@ -628,22 +628,22 @@ form.gradeSettingsForm {
     float: left;
 }
 
-.PRESENT {
+.present.active {
     background-color: #DFF0D8;
     border: 1px solid green;
 }
 
-.UNEXCUSED_ABSENCE {
+.unexcused_absence.active {
     background-color: #FFBBBB;
     border: 1px solid red;
 }
 
-.EXCUSED_ABSENCE {
+.excused_absence.active {
     background-color: #CCCCCC;
     border: 1px solid gray;
 }
 
-.LATE, .LEFT_EARLY {
+.late.active, .left_early.active {
     background-color: #fcf8a5;
     border: 1px solid goldenrod;
 }

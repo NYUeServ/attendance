@@ -15,47 +15,13 @@
  */
 
 (function (attendance, $, undefined) {
-    // Set the status class (which applies a background) if the input is selected
-    function processInput (inputs, isStudentView) {
-        for(var i = 0; i < inputs.length; i++) {
-            if(inputs[i].checked) {
-                var statusName = $(inputs[i]).siblings("label[hidden]").text();
-                $(inputs[i]).parent().addClass(statusName);
-            } else {
-                $(inputs[i]).parent().removeClass().addClass("div-table-col");
-                if(isStudentView && $(window).width() < 1205) {
-                    $(inputs[i]).parent().removeClass().addClass("skip");
-                }
-            }
-        }
-    }
 
-    // Re-setup a row after form input
-    attendance.recordFormRowSetup = function(row) {
-        var inputs = [];
-        for(var i = 0; i < row.length; i++) {
-            if(row[i].name === 'attendance-record-status-group') {
-                inputs.push(row[i]);
-            }
-        }
-        processInput(inputs);
-    };
-
-    // Set up the whole page record forms
     attendance.recordFormSetup = function() {
-        var inputs = [];
-        $("input[name='attendance-record-status-group']").each(function() {
-            inputs.push(this);
-        });
 
-        var isStudentView = false;
-        if($("#studentView").size() > 0) {
-            isStudentView = true;
-        }
-
-        processInput(inputs, isStudentView);
-
+        // handle radio click
         $('#takeAttendanceTable').on('click', '.status-group-container :radio', function(event) {
+            event.stopImmediatePropagation();
+
             var $radio = $(event.target);
 
             // FIXME need to get userid, eventid and status from somewhere
@@ -64,8 +30,17 @@
                 userid: $radio.closest('tr').find('[data-userid]').data('userid'),
                 eventid: $('#takeAttendanceTable').data('eventid'),
                 status: $radio.data('status'),
-            })
+            }, function() {
+                $radio.closest('tr').find('.active').removeClass('active');
+                $radio.closest('div').addClass('active');
+            });
         });
+
+        // expand click zone
+        $('#takeAttendanceTable').on('click', '.div-table-col', function(event) {
+            $(this).find(':radio').trigger('click');
+        });
+
     };
 
 

@@ -21,6 +21,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -123,21 +124,12 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                 Radio statusRadio = new Radio<Status>("record-status", new Model<Status>(itemStatus));
                 item.add(statusRadio);
                 statusRadio.add(new AttributeModifier("data-status", itemStatus.toString()));
-
-                // FIXME: Handle this elsewhere...
-                // statusRadio.add(new AjaxFormSubmitBehavior(rF, "onclick") {
-                //     protected void onSubmit(AjaxRequestTarget target) {
-                //         target.appendJavaScript("attendance.recordFormRowSetup("+ this.getAttributes().getFormId() + ");");
-                //         for (Component c : ajaxTargets) {
-                //             target.add(c);
-                //         }
-                //     }
-                // });
-                // ajaxTargets.add(statusRadio);
-
+                item.add(new AttributeAppender("class", " " + itemStatus.toString().toLowerCase()));
+                if (itemStatus.equals(AttendanceRecordFormDataPanel.this.recordIModel.getObject().getStatus())) {
+                    item.add(new AttributeAppender("class", " active"));
+                }
                 statusRadio.setLabel(Model.of(getStatusString(itemStatus)));
                 item.add(new SimpleFormComponentLabel("record-status-name", statusRadio));
-                item.add(new Label("record-status-name-raw", itemStatus.toString()));
             }
         };
 
