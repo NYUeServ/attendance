@@ -38,6 +38,8 @@ public class SetAttendanceStatusAction extends InjectableAction implements Actio
         Status oldStatus = attendanceRecord.getStatus();
         attendanceRecord.setStatus(status);
 
+        // FIXME handle when site isSyncing?
+
         boolean result = attendanceLogic.updateAttendanceRecord(attendanceRecord, oldStatus);
 
         String[] resultMsgVars = new String[]{
