@@ -61,7 +61,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
     private                 WebMarkupContainer          noComment;
     private                 WebMarkupContainer          yesComment;
 
-    public AttendanceRecordFormDataPanel(String id, AttendanceSite attendanceSite, IModel<AttendanceRecord> aR,  String rP, FeedbackPanel fP) {
+    public AttendanceRecordFormDataPanel(String id, AttendanceSite attendanceSite, AttendanceStatusProvider attendanceStatusProvider, IModel<AttendanceRecord> aR,  String rP, FeedbackPanel fP) {
         super(id, aR);
         this.recordIModel = aR;
         this.oldStatus = aR.getObject().getStatus();
@@ -71,13 +71,13 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         enable(fP);
         // this.ajaxTargets.add(this.pageFeedbackPanel);
 
-        add(createRecordInputForm(attendanceSite));
+        add(createRecordInputForm(attendanceSite, attendanceStatusProvider));
     }
 
-    private WebMarkupContainer createRecordInputForm(AttendanceSite attendanceSite) {
+    private WebMarkupContainer createRecordInputForm(AttendanceSite attendanceSite, AttendanceStatusProvider attendanceStatusProvider) {
         WebMarkupContainer recordForm = new WebMarkupContainer("attendanceRecord");
 
-        createStatusRadio(recordForm, attendanceSite);
+        createStatusRadio(recordForm, attendanceSite, attendanceStatusProvider);
         createCommentBox(recordForm);
 
         boolean noRecordBool = ((AttendanceRecord) this.recordIModel.getObject()).getStatus().equals(Status.UNKNOWN) && restricted;
@@ -90,8 +90,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         return recordForm;
     }
 
-    private void createStatusRadio(final WebMarkupContainer rF, final AttendanceSite attendanceSite) {
-        AttendanceStatusProvider attendanceStatusProvider = new AttendanceStatusProvider(attendanceSite, AttendanceStatusProvider.ACTIVE);
+    private void createStatusRadio(final WebMarkupContainer rF, final AttendanceSite attendanceSite, AttendanceStatusProvider attendanceStatusProvider) {
         DataView<AttendanceStatus> attendanceStatusRadios = new DataView<AttendanceStatus>("status-radios", attendanceStatusProvider) {
             @Override
             protected void populateItem(Item<AttendanceStatus> item) {

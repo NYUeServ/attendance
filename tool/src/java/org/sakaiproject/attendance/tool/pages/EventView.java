@@ -40,6 +40,7 @@ import org.sakaiproject.attendance.model.Status;
 import org.sakaiproject.attendance.tool.actions.SetAttendanceStatusAction;
 import org.sakaiproject.attendance.tool.component.AttendanceTable;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceRecordProvider;
+import org.sakaiproject.attendance.tool.dataproviders.AttendanceStatusProvider;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormDataPanel;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormHeaderPanel;
 import org.sakaiproject.attendance.tool.panels.PrintPanel;
@@ -201,6 +202,7 @@ public class EventView extends BasePage {
 
     private void createTable() {
         final AttendanceSite attendanceSite = attendanceLogic.getCurrentAttendanceSite();
+        final AttendanceStatusProvider attendanceStatusProvider = new AttendanceStatusProvider(attendanceSite, AttendanceStatusProvider.ACTIVE);
 
         Set<AttendanceRecord> records = this.attendanceEvent.getRecords();
 
@@ -283,7 +285,7 @@ public class EventView extends BasePage {
                 studentLink.add(stuName);
                 studentLink.add(new AttributeModifier("data-userid", stuId));
                 item.add(studentLink);
-                item.add(new AttendanceRecordFormDataPanel("record", attendanceSite, item.getModel(), returnPage, feedbackPanel));
+                item.add(new AttendanceRecordFormDataPanel("record", attendanceSite, attendanceStatusProvider, item.getModel(), returnPage, feedbackPanel));
             }
         });
 
