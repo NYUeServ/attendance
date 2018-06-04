@@ -28,7 +28,7 @@
             attendance.triggerAction({
                 action: 'setStatus',
                 userid: $radio.closest('tr').find('[data-userid]').data('userid'),
-                eventid: $('#takeAttendanceTable').data('eventid'),
+                recordid: $radio.data('recordid'),
                 status: $radio.data('status'),
             }, function() {
                 $radio.closest('tr').find('.active').removeClass('active');

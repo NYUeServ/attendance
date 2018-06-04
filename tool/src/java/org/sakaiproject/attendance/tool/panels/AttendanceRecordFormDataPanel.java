@@ -74,32 +74,6 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
     }
 
     private WebMarkupContainer createRecordInputForm() {
-        // FIXME: Handle this elsewhere...
-        // Form<AttendanceRecord> recordForm = new Form<AttendanceRecord>("attendanceRecord", this.recordIModel) {
-        //     protected void onSubmit() {
-        //         AttendanceRecord aR = (AttendanceRecord) getDefaultModelObject();
-        //         if(aR.getStatus() == null) {
-        //             aR.setStatus(Status.UNKNOWN);
-        //         }
-        //         boolean result = attendanceLogic.updateAttendanceRecord(aR, oldStatus);
-        //         String[] resultMsgVars = new String[]{sakaiProxy.getUserSortName(aR.getUserID()), aR.getAttendanceEvent().getName(), getStatusString(aR.getStatus())};
-        //         StringResourceModel temp;
-        //         if(result){
-        //             temp = new StringResourceModel("attendance.record.save.success", null, resultMsgVars);
-        //             getSession().info(temp.getString());
-        //             oldStatus = aR.getStatus();
-        //         } else {
-        //             temp = new StringResourceModel("attendance.record.save.failure", null, resultMsgVars);
-        //             getSession().error(temp.getString());
-        //         }
-        //     }
-        // 
-        //     @Override
-        //     public boolean isEnabled() {
-        //         return !recordIModel.getObject().getAttendanceEvent().getAttendanceSite().getIsSyncing();
-        //     }
-        // };
-
         WebMarkupContainer recordForm = new WebMarkupContainer("attendanceRecord");
 
         createStatusRadio(recordForm);
@@ -130,6 +104,11 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                 }
                 statusRadio.setLabel(Model.of(getStatusString(itemStatus)));
                 item.add(new SimpleFormComponentLabel("record-status-name", statusRadio));
+            }
+
+            public boolean isEnabled() {
+                // FIXME move isSyncing to the page to avoid extra lookups
+                return !recordIModel.getObject().getAttendanceEvent().getAttendanceSite().getIsSyncing();
             }
         };
 
