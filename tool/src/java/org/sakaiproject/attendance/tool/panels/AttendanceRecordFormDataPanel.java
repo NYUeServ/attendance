@@ -102,6 +102,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                 }
                 statusRadio.setLabel(Model.of(getStatusString(itemStatus)));
                 statusRadio.setEnabled(!attendanceSite.getIsSyncing());
+                statusRadio.add(new AttributeModifier("data-recordid", AttendanceRecordFormDataPanel.this.recordIModel.getObject().getId()));
                 item.add(new SimpleFormComponentLabel("record-status-name", statusRadio));
             }
         };
