@@ -101,12 +101,8 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
                     item.add(new AttributeAppender("class", " active"));
                 }
                 statusRadio.setLabel(Model.of(getStatusString(itemStatus)));
+                statusRadio.setEnabled(!attendanceSite.getIsSyncing());
                 item.add(new SimpleFormComponentLabel("record-status-name", statusRadio));
-            }
-
-            public boolean isEnabled() {
-                // FIXME move isSyncing to the page to avoid extra lookups
-                return !recordIModel.getObject().getAttendanceEvent().getAttendanceSite().getIsSyncing();
             }
         };
 
