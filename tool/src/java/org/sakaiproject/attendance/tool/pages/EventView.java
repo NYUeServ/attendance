@@ -34,6 +34,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.attendance.model.AttendanceEvent;
 import org.sakaiproject.attendance.model.AttendanceRecord;
+import org.sakaiproject.attendance.model.AttendanceSite;
 import org.sakaiproject.attendance.model.AttendanceStatus;
 import org.sakaiproject.attendance.model.Status;
 import org.sakaiproject.attendance.tool.actions.SetAttendanceStatusAction;
@@ -199,6 +200,8 @@ public class EventView extends BasePage {
     }
 
     private void createTable() {
+        final AttendanceSite attendanceSite = attendanceLogic.getCurrentAttendanceSite();
+
         Set<AttendanceRecord> records = this.attendanceEvent.getRecords();
 
         // Generate records if none exist
@@ -280,7 +283,7 @@ public class EventView extends BasePage {
                 studentLink.add(stuName);
                 studentLink.add(new AttributeModifier("data-userid", stuId));
                 item.add(studentLink);
-                item.add(new AttendanceRecordFormDataPanel("record", item.getModel(), returnPage, feedbackPanel));
+                item.add(new AttendanceRecordFormDataPanel("record", attendanceSite, item.getModel(), returnPage, feedbackPanel));
             }
         });
 

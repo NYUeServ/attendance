@@ -33,6 +33,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.*;
 import org.sakaiproject.attendance.model.AttendanceRecord;
+import org.sakaiproject.attendance.model.AttendanceSite;
 import org.sakaiproject.attendance.model.AttendanceStatus;
 import org.sakaiproject.attendance.model.Status;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceStatusProvider;
@@ -60,7 +61,7 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
     private                 WebMarkupContainer          noComment;
     private                 WebMarkupContainer          yesComment;
 
-    public AttendanceRecordFormDataPanel(String id, IModel<AttendanceRecord> aR,  String rP, FeedbackPanel fP) {
+    public AttendanceRecordFormDataPanel(String id, AttendanceSite attendanceSite, IModel<AttendanceRecord> aR,  String rP, FeedbackPanel fP) {
         super(id, aR);
         this.recordIModel = aR;
         this.oldStatus = aR.getObject().getStatus();
@@ -70,13 +71,13 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         enable(fP);
         // this.ajaxTargets.add(this.pageFeedbackPanel);
 
-        add(createRecordInputForm());
+        add(createRecordInputForm(attendanceSite));
     }
 
-    private WebMarkupContainer createRecordInputForm() {
+    private WebMarkupContainer createRecordInputForm(AttendanceSite attendanceSite) {
         WebMarkupContainer recordForm = new WebMarkupContainer("attendanceRecord");
 
-        createStatusRadio(recordForm);
+        createStatusRadio(recordForm, attendanceSite);
         createCommentBox(recordForm);
 
         boolean noRecordBool = ((AttendanceRecord) this.recordIModel.getObject()).getStatus().equals(Status.UNKNOWN) && restricted;
@@ -89,8 +90,8 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
         return recordForm;
     }
 
-    private void createStatusRadio(final WebMarkupContainer rF) {
-        AttendanceStatusProvider attendanceStatusProvider = new AttendanceStatusProvider(attendanceLogic.getCurrentAttendanceSite(), AttendanceStatusProvider.ACTIVE);
+    private void createStatusRadio(final WebMarkupContainer rF, final AttendanceSite attendanceSite) {
+        AttendanceStatusProvider attendanceStatusProvider = new AttendanceStatusProvider(attendanceSite, AttendanceStatusProvider.ACTIVE);
         DataView<AttendanceStatus> attendanceStatusRadios = new DataView<AttendanceStatus>("status-radios", attendanceStatusProvider) {
             @Override
             protected void populateItem(Item<AttendanceStatus> item) {

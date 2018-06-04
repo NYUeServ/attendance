@@ -24,6 +24,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.attendance.model.AttendanceRecord;
+import org.sakaiproject.attendance.model.AttendanceSite;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceRecordProvider;
 import org.sakaiproject.attendance.tool.panels.AttendanceGradePanel;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormDataPanel;
@@ -201,6 +202,8 @@ public class StudentView extends BasePage {
     }
 
     private DataView<AttendanceRecord> createData(){
+        final AttendanceSite attendanceSite = attendanceLogic.getCurrentAttendanceSite();
+
         DataView<AttendanceRecord> dataView = new DataView<AttendanceRecord>("records", new AttendanceRecordProvider(this.studentId)) {
             @Override
             protected void populateItem(final Item<AttendanceRecord> item) {
@@ -216,7 +219,7 @@ public class StudentView extends BasePage {
                 }
                 item.add(eventLink);
                 item.add(new Label("event-date", item.getModelObject().getAttendanceEvent().getStartDateTime()));
-                item.add(new AttendanceRecordFormDataPanel("record", item.getModel(), returnPage, feedbackPanel));
+                item.add(new AttendanceRecordFormDataPanel("record", attendanceSite, item.getModel(), returnPage, feedbackPanel));
             }
         };
 
