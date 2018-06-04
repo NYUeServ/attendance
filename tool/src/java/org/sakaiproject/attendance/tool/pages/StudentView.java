@@ -27,6 +27,9 @@ import org.sakaiproject.attendance.model.AttendanceRecord;
 import org.sakaiproject.attendance.model.AttendanceSite;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceRecordProvider;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceStatusProvider;
+import org.sakaiproject.attendance.tool.actions.ViewCommentAction;
+import org.sakaiproject.attendance.tool.component.AttendanceTable;
+import org.sakaiproject.attendance.tool.models.AttendanceModalWindow;
 import org.sakaiproject.attendance.tool.panels.AttendanceGradePanel;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormDataPanel;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormHeaderPanel;
@@ -44,6 +47,8 @@ public class StudentView extends BasePage {
     private                 Long        previousEventId;
     private                 boolean     isStudent           = false;
     private                 String      returnPage          = "";
+
+    private AttendanceModalWindow showCommentWindow;
 
     public StudentView() {
         this.studentId = sakaiProxy.getCurrentUserId();
@@ -88,6 +93,9 @@ public class StudentView extends BasePage {
         add(createStatistics());
         add(createStudentViewHeader());
         add(createTable());
+
+        showCommentWindow = new AttendanceModalWindow("showCommentWindow");
+        add(showCommentWindow);
     }
 
     private WebMarkupContainer createHeader() {
@@ -194,10 +202,16 @@ public class StudentView extends BasePage {
         } else {
             studentViewData.add(new Label("take-attendance-header", getString("attendance.student.view.attendance")));
         }
-        studentViewData.add(new AttendanceRecordFormHeaderPanel("header"));
-        studentViewData.add(new Label("event-name-header", new ResourceModel("attendance.record.form.header.event")));
-        studentViewData.add(new Label("event-date-header", new ResourceModel("attendance.record.form.header.date")));
-        studentViewData.add(createData());
+
+        AttendanceTable table = new AttendanceTable("takeAttendanceTable");
+        table.addEventListener("viewComment", new ViewCommentAction());
+
+        table.add(new AttendanceRecordFormHeaderPanel("header"));
+        table.add(new Label("event-name-header", new ResourceModel("attendance.record.form.header.event")));
+        table.add(new Label("event-date-header", new ResourceModel("attendance.record.form.header.date")));
+        table.add(createData());
+
+        studentViewData.add(table);
 
         return studentViewData;
     }
@@ -225,5 +239,9 @@ public class StudentView extends BasePage {
         };
 
         return dataView;
+    }
+
+    public AttendanceModalWindow getShowCommentWindow() {
+        return this.showCommentWindow;
     }
 }

@@ -58,8 +58,6 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
     private                 Status                      oldStatus;
 
     private                 WebMarkupContainer          commentContainer;
-    private                 WebMarkupContainer          noComment;
-    private                 WebMarkupContainer          yesComment;
 
     public AttendanceRecordFormDataPanel(String id, AttendanceSite attendanceSite, AttendanceStatusProvider attendanceStatusProvider, IModel<AttendanceRecord> aR,  String rP, FeedbackPanel fP) {
         super(id, aR);
@@ -124,63 +122,24 @@ public class AttendanceRecordFormDataPanel extends BasePanel {
     private void createCommentBox(final WebMarkupContainer rF) {
 
         commentContainer = new WebMarkupContainer("comment-container");
+        commentContainer.add(new AttributeModifier("data-recordid", this.recordIModel.getObject().getId()));
         commentContainer.setOutputMarkupId(true);
 
-        // FIXME
-        commentContainer.setVisible(false);
+        WebMarkupContainer commentToggle = new WebMarkupContainer("commentToggle");
+        commentToggle.setOutputMarkupId(true);
 
-        noComment = new WebMarkupContainer("no-comment");
-        noComment.setOutputMarkupId(true);
+        boolean hasComment = recordIModel.getObject().getComment() != null && !recordIModel.getObject().getComment().equals("");
 
-        yesComment = new WebMarkupContainer("yes-comment");
-        yesComment.setOutputMarkupId(true);
-
-        if(recordIModel.getObject().getComment() != null && !recordIModel.getObject().getComment().equals("")) {
-            noComment.setVisible(false);
-        } else {
-            yesComment.setVisible(false);
+        if (hasComment) {
+            commentToggle.add(new AttributeAppender("class", " has-comment"));
         }
-
-        commentContainer.add(noComment);
-        commentContainer.add(yesComment);
-
-        final TextArea<String> commentBox = new TextArea<String>("comment", new PropertyModel<String>(this.recordIModel, "comment"));
-
-        // FIXME: Handle this elsewhere
-        // final AjaxSubmitLink saveComment = new AjaxSubmitLink("save-comment") {
-        //     @Override
-        //     protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-        //         super.onSubmit(target, form);
-        //         if(recordIModel.getObject().getComment() != null && !recordIModel.getObject().getComment().equals("")) {
-        //             noComment.setVisible(false);
-        //             yesComment.setVisible(true);
-        //         } else {
-        //             noComment.setVisible(true);
-        //             yesComment.setVisible(false);
-        //         }
-        //         commentContainer.addOrReplace(noComment);
-        //         commentContainer.addOrReplace(yesComment);
-        //         for (Component c : ajaxTargets) {
-        //             target.add(c);
-        //         }
-        //     }
-        // };
-        //
-
-        WebMarkupContainer saveComment = new WebMarkupContainer("save-comment");
-        commentContainer.add(saveComment);
-        commentContainer.add(commentBox);
-
-        // ajaxTargets.add(commentContainer);
+        commentContainer.add(commentToggle);
 
         if(restricted) {
             commentContainer.setVisible(showCommentsToStudents);
-            saveComment.setVisible(!showCommentsToStudents);
-            commentBox.setEnabled(!showCommentsToStudents);
-            noComment.setVisible(!showCommentsToStudents);
-            commentContainer.add(new Label("add-header", new ResourceModel("attendance.record.form.view.comment")));
-        } else {
-            commentContainer.add(new Label("add-header", new ResourceModel("attendance.record.form.add.comment")));
+            if (!hasComment) {
+                commentToggle.setVisible(false);
+            }
         }
 
         rF.add(commentContainer);

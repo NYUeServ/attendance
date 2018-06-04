@@ -24,10 +24,8 @@
 
             var $radio = $(event.target);
 
-            // FIXME need to get userid, eventid and status from somewhere
             attendance.triggerAction({
                 action: 'setStatus',
-                userid: $radio.closest('tr').find('[data-userid]').data('userid'),
                 recordid: $radio.data('recordid'),
                 status: $radio.data('status'),
             }, function() {
@@ -41,6 +39,20 @@
             $(this).find(':radio').trigger('click');
         });
 
+        // handle comment toggle click
+        $('#takeAttendanceTable').on('click', '.comment-container .commentToggle', function(event) {
+            event.stopImmediatePropagation();
+
+            var $toggle = $(event.target).closest('.commentToggle');
+
+            attendance.triggerAction({
+                action: 'viewComment',
+                toggleid: $toggle.attr('id'),
+                recordid: $toggle.closest('.comment-container').data('recordid'),
+            }, function(status, data) {
+              console.log(data);
+            });
+        });
     };
 
 

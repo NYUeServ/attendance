@@ -38,6 +38,7 @@ import org.sakaiproject.attendance.model.AttendanceSite;
 import org.sakaiproject.attendance.model.AttendanceStatus;
 import org.sakaiproject.attendance.model.Status;
 import org.sakaiproject.attendance.tool.actions.SetAttendanceStatusAction;
+import org.sakaiproject.attendance.tool.actions.ViewCommentAction;
 import org.sakaiproject.attendance.tool.component.AttendanceTable;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceRecordProvider;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceStatusProvider;
@@ -45,17 +46,21 @@ import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormDataPanel;
 import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormHeaderPanel;
 import org.sakaiproject.attendance.tool.panels.PrintPanel;
 import org.sakaiproject.attendance.tool.panels.StatisticsPanel;
+import org.sakaiproject.attendance.tool.models.AttendanceModalWindow;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.apache.wicket.ajax.AjaxEventBehavior;
-
-import java.io.IOException;
-
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-
+import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormDataPanel;
+import org.sakaiproject.attendance.tool.panels.AttendanceRecordFormHeaderPanel;
+import org.sakaiproject.attendance.tool.panels.PrintPanel;
+import org.sakaiproject.attendance.tool.panels.StatisticsPanel;
 
 
 /**
@@ -80,6 +85,8 @@ public class EventView extends BasePage {
 
                             PrintPanel              printPanel;
                             WebMarkupContainer      printContainer;
+
+    private AttendanceModalWindow showCommentWindow;
 
     public EventView(Long id, String fromPage) {
         super();
@@ -178,6 +185,9 @@ public class EventView extends BasePage {
         printContainer.add(AttributeModifier.append("class", "printHidden"));
 
         add(printContainer);
+
+        showCommentWindow = new AttendanceModalWindow("showCommentWindow");
+        add(showCommentWindow);
     }
 
     private void createStatsTable() {
@@ -264,6 +274,7 @@ public class EventView extends BasePage {
         AttendanceTable topTable = new AttendanceTable("takeAttendanceTable");
 
         topTable.addEventListener("setStatus", new SetAttendanceStatusAction());
+        topTable.addEventListener("viewComment", new ViewCommentAction());
 
         topTable.add(new Label("student-name", new ResourceModel("attendance.event.view.student.name")));
         topTable.add(new AttendanceRecordFormHeaderPanel("record-header"));
@@ -283,12 +294,15 @@ public class EventView extends BasePage {
                     }
                 };
                 studentLink.add(stuName);
-                studentLink.add(new AttributeModifier("data-userid", stuId));
                 item.add(studentLink);
                 item.add(new AttendanceRecordFormDataPanel("record", attendanceSite, attendanceStatusProvider, item.getModel(), returnPage, feedbackPanel));
             }
         });
 
         add(topTable);
+    }
+
+    public AttendanceModalWindow getShowCommentWindow() {
+        return this.showCommentWindow;
     }
 }
