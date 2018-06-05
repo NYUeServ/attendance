@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.type.LongType;
 import org.hibernate.type.ManyToOneType;
 import org.hibernate.type.StringType;
@@ -228,12 +229,26 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 	 * {@inheritDoc}
 	 */
 	public void updateAttendanceRecords(List<AttendanceRecord> aRs) {
-		for(AttendanceRecord aR : aRs) {
-			try {
-				getHibernateTemplate().saveOrUpdate(aR);
-				log.debug("save attendanceRecord id: " + aR.getId());
-			} catch (Exception e) {
-				log.error("update attendanceRecords failed.", e);
+		Session session = null;
+		Transaction transaction = null;
+
+		try {
+			session = getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+
+			for(AttendanceRecord aR : aRs) {
+				try {
+					getHibernateTemplate().saveOrUpdate(aR);
+					log.debug("save attendanceRecord id: " + aR.getId());
+				} catch (Exception e) {
+					log.error("update attendanceRecords failed.", e);
+				}
+			}
+
+			transaction.commit();
+		} finally {
+			if (session != null) {
+				session.close();
 			}
 		}
 	}

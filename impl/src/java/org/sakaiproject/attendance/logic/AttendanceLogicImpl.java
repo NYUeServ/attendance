@@ -318,6 +318,7 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 				AttendanceRecord attendanceRecord = generateAttendanceRecord(attendanceEvent, studentId, defaultStatus);
 				recordList.add(attendanceRecord);
 			}
+			dao.updateAttendanceRecords(recordList);
 		}
 
 		return recordList;
@@ -637,6 +638,8 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 			AttendanceRecord attendanceRecord = generateAttendanceRecord(aE, user.getId(), s);
 			recordList.add(attendanceRecord);
 		}
+
+		dao.updateAttendanceRecords(recordList);
 
 		return recordList;
 	}
