@@ -25,6 +25,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.attendance.model.AttendanceRecord;
 import org.sakaiproject.attendance.model.AttendanceSite;
+import org.sakaiproject.attendance.tool.actions.SetAttendanceStatusAction;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceRecordProvider;
 import org.sakaiproject.attendance.tool.dataproviders.AttendanceStatusProvider;
 import org.sakaiproject.attendance.tool.actions.ViewCommentAction;
@@ -205,6 +206,10 @@ public class StudentView extends BasePage {
 
         AttendanceTable table = new AttendanceTable("takeAttendanceTable");
         table.addEventListener("viewComment", new ViewCommentAction());
+
+        if (!isStudent) {
+            table.addEventListener("setStatus", new SetAttendanceStatusAction());
+        }
 
         table.add(new AttendanceRecordFormHeaderPanel("header"));
         table.add(new Label("event-name-header", new ResourceModel("attendance.record.form.header.event")));
