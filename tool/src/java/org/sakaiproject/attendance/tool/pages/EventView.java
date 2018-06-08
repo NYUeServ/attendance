@@ -284,10 +284,9 @@ public class EventView extends BasePage {
         topTable.add(new AttendanceRecordFormHeaderPanel("record-header"));
 
         AttendanceRecordProvider attendanceRecordProvider = new AttendanceRecordProvider(this.attendanceEvent, selectedGroup);
-
         attendanceRecordProvider.prefetchUsers();
 
-        topTable.add(new DataView<AttendanceRecord>("records", new AttendanceRecordProvider(this.attendanceEvent, selectedGroup)) {
+        topTable.add(new DataView<AttendanceRecord>("records", attendanceRecordProvider) {
             @Override
             protected void populateItem(final Item<AttendanceRecord> item) {
                 final String stuId = item.getModelObject().getUserID();
