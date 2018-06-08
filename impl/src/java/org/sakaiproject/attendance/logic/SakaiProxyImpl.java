@@ -359,6 +359,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<User> getUsers(Collection<String> userIds) {
+		return userDirectoryService.getUsers(userIds);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getGroupTitleForCurrentSite(String groupId) {
 		return getGroupTitle(getCurrentSiteId(), groupId);
 	}

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 /**
  * An AttendanceRecord Provider
@@ -122,5 +124,12 @@ public class AttendanceRecordProvider extends BaseProvider<AttendanceRecord> {
             return new Model<>(object);
         }
         return new DetachableAttendanceRecordModel(object);
+    }
+
+
+    public void prefetchUsers() {
+        // Prefetch users to avoid N lookups.
+        List<String> userIds = getData().stream().map(attendanceRecord -> attendanceRecord.getUserID()).collect(Collectors.toList());
+        sakaiProxy.getUsers(userIds);
     }
 }
