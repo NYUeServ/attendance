@@ -26,6 +26,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.attendance.model.AttendanceEvent;
 import org.sakaiproject.attendance.model.AttendanceRecord;
 import org.sakaiproject.attendance.model.AttendanceSite;
 import org.sakaiproject.attendance.tool.actions.SetAttendanceStatusAction;
@@ -41,6 +42,7 @@ import org.sakaiproject.attendance.tool.panels.StatisticsPanel;
 import org.sakaiproject.time.cover.TimeService;
 
 import java.util.TimeZone;
+import java.util.Arrays;
 
 /**
  * StudentView is the view of a single user (a student)'s AttendanceRecords
@@ -229,6 +231,14 @@ public class StudentView extends BasePage {
 
     private DataView<AttendanceRecord> createData(){
         final AttendanceSite attendanceSite = attendanceLogic.getCurrentAttendanceSite();
+
+        // Ensure we don't have any missing DB rows
+        for (AttendanceEvent aE : attendanceLogic.getAttendanceEventsForSite(attendanceSite)) {
+            if (aE.getRecords().stream().noneMatch(record -> record.getUserID().equals(studentId))) {
+                attendanceLogic.updateMissingRecordsForEvent(aE, attendanceSite.getDefaultStatus(), Arrays.asList(new String[] { studentId }));
+            }
+        }
+
         final AttendanceStatusProvider attendanceStatusProvider = new AttendanceStatusProvider(attendanceSite, AttendanceStatusProvider.ACTIVE);
         DataView<AttendanceRecord> dataView = new DataView<AttendanceRecord>("records", new AttendanceRecordProvider(this.studentId)) {
             @Override
