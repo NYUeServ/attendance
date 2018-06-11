@@ -727,7 +727,7 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 
 		AttendanceEvent aE = aR.getAttendanceEvent();
 		AttendanceItemStats itemStats = getStatsForEvent(aE);
-		updateStatsNoUpdate(itemStats, oldStatus, aR.getStatus());
+		updateStatsCounts(itemStats, oldStatus, aR.getStatus());
 		dao.updateAttendanceItemStats(itemStats);
 	}
 
@@ -737,12 +737,12 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 			userStats = new AttendanceUserStats(record.getUserID(), record.getAttendanceEvent().getAttendanceSite());
 		}
 
-		updateStatsNoUpdate(userStats, oldStatus, record.getStatus());
+		updateStatsCounts(userStats, oldStatus, record.getStatus());
 
 		return userStats;
 	}
 
-	private void updateStatsNoUpdate(AttendanceStats stats, Status oldStatus, Status newStatus) {
+	private void updateStatsCounts(AttendanceStats stats, Status oldStatus, Status newStatus) {
 		if(oldStatus != newStatus) {
 			removeStatusFromStats(stats, oldStatus);
 
@@ -758,15 +758,6 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 				stats.setLeftEarly(stats.getLeftEarly() + 1);
 			}
 		}
-
-		// boolean returnVariable;
-		// if(userStats != null) {
-		// 	returnVariable = dao.updateAttendanceUserStats((AttendanceUserStats) stats);
-		// } else {
-		// 	returnVariable = dao.updateAttendanceItemStats((AttendanceItemStats) stats);
-		// }
-		// 
-		// return returnVariable;
 	}
 
 	private void removeStatusFromStats(AttendanceStats stats, Status status) {
