@@ -234,7 +234,7 @@ public interface AttendanceDao {
 	 * @param aUS, the AttendanceUserStats to update
 	 * @return success or failure of the operation
 	 */
-	boolean updateAttendanceUserStats(AttendanceUserStats aUS);
+	boolean updateAttendanceUserStats(List<AttendanceUserStats> attendanceUserStats);
 
 	/**
 	 * Get the AttendanceItemStats for an AttendanceEvent

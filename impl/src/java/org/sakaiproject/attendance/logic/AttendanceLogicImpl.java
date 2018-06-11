@@ -132,8 +132,7 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 			if(userStats != null) {
 				Status recordStatus = record.getStatus();
 				removeStatusFromStats(userStats, recordStatus);
-
-				dao.updateAttendanceUserStats(userStats);
+				dao.updateAttendanceUserStats(Arrays.asList(new AttendanceUserStats[] { userStats }));
 			}
 		}
 
@@ -725,29 +724,26 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 
 		Map<String, AttendanceUserStats> userStats = dao.getAllAttendanceUserStats(aR.getAttendanceEvent().getAttendanceSite(),
 											   Arrays.asList(new String[] { aR.getUserID() }));
-		updateUserStats(userStats, aR, oldStatus);
+		dao.updateAttendanceUserStats(Arrays.asList(new AttendanceUserStats[] { updateUserStats(userStats, aR, oldStatus) }));
 
 		AttendanceEvent aE = aR.getAttendanceEvent();
 		AttendanceItemStats itemStats = getStatsForEvent(aE);
-		updateStats(null, itemStats, oldStatus, aR.getStatus());
+		updateStatsNoUpdate(itemStats, oldStatus, aR.getStatus());
+		dao.updateAttendanceItemStats(itemStats);
 	}
 
-	private boolean updateUserStats(Map<String, AttendanceUserStats> userStatsTable, AttendanceRecord record, Status oldStatus) {
+	private AttendanceUserStats updateUserStats(Map<String, AttendanceUserStats> userStatsTable, AttendanceRecord record, Status oldStatus) {
 		AttendanceUserStats userStats = userStatsTable.get(record.getUserID());
 		if(userStats == null) { // assume null userStats means stats haven't been calculated yet
 			userStats = new AttendanceUserStats(record.getUserID(), record.getAttendanceEvent().getAttendanceSite());
 		}
-		return updateStats(userStats, null, oldStatus, record.getStatus());
+
+		updateStatsNoUpdate(userStats, oldStatus, record.getStatus());
+
+		return userStats;
 	}
 
-	private boolean updateStats(AttendanceUserStats userStats, AttendanceItemStats itemStats, Status oldStatus, Status newStatus) {
-		AttendanceStats stats;
-		if(userStats != null) {
-			stats = userStats;
-		} else {
-			stats = itemStats;
-		}
-
+	private void updateStatsNoUpdate(AttendanceStats stats, Status oldStatus, Status newStatus) {
 		if(oldStatus != newStatus) {
 			removeStatusFromStats(stats, oldStatus);
 
@@ -764,14 +760,14 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 			}
 		}
 
-		boolean returnVariable;
-		if(userStats != null) {
-			returnVariable = dao.updateAttendanceUserStats((AttendanceUserStats) stats);
-		} else {
-			returnVariable = dao.updateAttendanceItemStats((AttendanceItemStats) stats);
-		}
-
-		return returnVariable;
+		// boolean returnVariable;
+		// if(userStats != null) {
+		// 	returnVariable = dao.updateAttendanceUserStats((AttendanceUserStats) stats);
+		// } else {
+		// 	returnVariable = dao.updateAttendanceItemStats((AttendanceItemStats) stats);
+		// }
+		// 
+		// return returnVariable;
 	}
 
 	private void removeStatusFromStats(AttendanceStats stats, Status status) {

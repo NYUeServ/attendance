@@ -28,6 +28,7 @@ public class AttendanceTable extends WebMarkupContainer {
             @Override
             protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
+                attributes.setMethod(AjaxRequestAttributes.Method.POST);
                 attributes.getDynamicExtraParameters().add("return [{\"name\": \"ajaxParams\", \"value\": JSON.stringify(attrs.event.extraData)}]");
             }
 

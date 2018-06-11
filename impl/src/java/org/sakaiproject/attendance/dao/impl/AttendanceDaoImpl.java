@@ -504,16 +504,34 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean updateAttendanceUserStats(AttendanceUserStats aUS) {
-		log.debug("updateAttendanceUserStats for User '" + aUS.getUserID() + "' and Site: '" + aUS.getAttendanceSite().getSiteID() + "'.");
+	public boolean updateAttendanceUserStats(List<AttendanceUserStats> attendanceUserStats) {
+		Session session = null;
+		Transaction transaction = null;
 
 		try {
-			getHibernateTemplate().saveOrUpdate(aUS);
-			return true;
-		} catch (DataAccessException e) {
-			log.error("updateAttendanceUserStats, id: '" + aUS.getId() + "' failed.", e);
-			return false;
+			session = getSessionFactory().openSession();
+			transaction = session.beginTransaction();
+
+			for (AttendanceUserStats aUS : attendanceUserStats) {
+				log.debug("updateAttendanceUserStats for User '" + aUS.getUserID() + "' and Site: '" + aUS.getAttendanceSite().getSiteID() + "'.");
+
+				try {
+					getHibernateTemplate().saveOrUpdate(aUS);
+				} catch (DataAccessException e) {
+					transaction.rollback();
+					log.error("updateAttendanceUserStats, id: '" + aUS.getId() + "' failed.", e);
+					return false;
+				}
+			}
+
+			transaction.commit();
+		} finally {
+			if (session != null) {
+				session.close();
+			}
 		}
+
+		return true;
 	}
 
 	/**
