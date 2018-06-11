@@ -46,6 +46,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -219,6 +220,10 @@ public class ExportPage extends BasePage{
                     }
                 }
             });
+
+            List<String> userIds = finalUserStatsList.stream().map(u -> u.getUserID()).collect(Collectors.toList());
+            Map<String, List<AttendanceRecord>> attendanceRecordsByUserID = attendanceLogic.getAttendanceRecordsForUsers(userIds, attendanceSite);
+
             eventCount = attendanceEventlist.size();
             studentCount = finalUserStatsList.size();
             header.add("StudentID");
@@ -260,7 +265,7 @@ public class ExportPage extends BasePage{
             final int[] cellCount = {0};
             for(int x = 0; x < studentCount; x++) {
                 rowCounter = 0;
-                List<AttendanceRecord> attendanceRecordlist = attendanceLogic.getAttendanceRecordsForUser(finalUserStatsList.get(x).getUserID().toString());
+                List<AttendanceRecord> attendanceRecordlist = attendanceRecordsByUserID.get(finalUserStatsList.get(x).getUserID());
                 HSSFRow row = mainSheet.createRow(rowCount[0]);
                 final User user = sakaiProxy.getUser(finalUserStatsList.get(x).getUserID());
                 cellCount[0] = 0;

@@ -153,15 +153,8 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<AttendanceRecord> getAttendanceRecordsForUser(String id) {
-		return getAttendanceRecordsForUser(id, getCurrentAttendanceSite());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<AttendanceRecord> getAttendanceRecordsForUser(String id, AttendanceSite aS) {
-		return generateAttendanceRecords(id, aS);
+	public Map<String, List<AttendanceRecord>> getAttendanceRecordsForUsers(List<String> userIds, AttendanceSite aS) {
+		return generateAttendanceRecordsForUsers(userIds, aS);
 	}
 
 	/**
@@ -604,30 +597,36 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 		return new AttendanceGrade(aS, userId);
 	}
 
-	private List<AttendanceRecord> generateAttendanceRecords(String id, AttendanceSite aS) {
+	private Map<String, List<AttendanceRecord>> generateAttendanceRecordsForUsers(List<String> userIds, AttendanceSite aS) {
 		List<AttendanceEvent> aEs = getAttendanceEventsForSite(aS);
-		List<AttendanceRecord> records = new ArrayList<>(aEs.size());
-		Status s = getCurrentAttendanceSite().getDefaultStatus();
-		// Is there a faster way to do this? Would querying the DB be faster?
+		Map<String, List<AttendanceRecord>> result = new HashMap<>();
+
+		for (String userId : userIds) {
+			result.put(userId, new ArrayList<>());
+		}
+
+		Status s = aS.getDefaultStatus();
+
 		for(AttendanceEvent e : aEs) {
-			boolean recordPresent = false;
+			Set<String> matchedUsers = new HashSet<>();
 			Set<AttendanceRecord> eRecords = e.getRecords();
 
-			if(!eRecords.isEmpty()) {
-				for (AttendanceRecord r : eRecords) {
-					if (r.getUserID().equals(id)) {
-						recordPresent = true;
-						records.add(r);
-					}
+			for (AttendanceRecord r : eRecords) {
+				if (userIds.contains(r.getUserID())) {
+					matchedUsers.add(r.getUserID());
+					result.get(r.getUserID()).add(r);
 				}
 			}
 
-			if(!recordPresent) {
-				records.add(generateAttendanceRecord(e, id, s));
+
+			for (String userId : userIds) {
+				if (!matchedUsers.contains(userId)) {
+					result.get(userId).add(generateAttendanceRecord(e, userId, s));
+				}
 			}
 		}
 
-		return records;
+		return result;
 	}
 
 	private List<AttendanceRecord> generateAttendanceRecords(AttendanceEvent aE, Status s) {
