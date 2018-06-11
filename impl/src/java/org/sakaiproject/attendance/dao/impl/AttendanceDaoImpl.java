@@ -34,6 +34,8 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -424,6 +426,30 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		} catch (DataAccessException de) {
 			log.error("updateAttendanceGrade failed.", de);
 			return false;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Map<String, AttendanceUserStats> getAllAttendanceUserStats(AttendanceSite aS, List<String> userIds) {
+		try{
+			HibernateCallback hcb = new HibernateCallback() {
+				@Override
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery(QUERY_GET_ALL_ATTENDANCE_USER_STATS);
+					q.setParameter(ATTENDANCE_SITE, aS, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
+					q.setParameterList(USER_IDS, userIds);
+					return q.list();
+				}
+			};
+
+			return ((List<AttendanceUserStats>) getHibernateTemplate().execute(hcb))
+				.stream()
+				.collect(Collectors.toMap(AttendanceUserStats::getUserID, stats -> stats));
+		} catch (DataAccessException e) {
+			log.error("DataAccessException getting AttendanceUserStats for Users '" + userIds + "' and Site: '" + aS.getSiteID() + "'.", e);
+			return null;
 		}
 	}
 

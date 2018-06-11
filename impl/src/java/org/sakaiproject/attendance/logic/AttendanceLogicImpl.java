@@ -18,6 +18,7 @@ package org.sakaiproject.attendance.logic;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.Setter;
 
@@ -201,7 +202,7 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 		}
 
 		updateStats(aR, oldStatus);
-		regradeForAttendanceRecord(aR);
+		regradeForAttendanceRecord(getCurrentAttendanceSite(), aR);
 		return dao.updateAttendanceRecord(aR);
 	}
 
@@ -255,6 +256,14 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 			}
 		}
 
+		final AttendanceSite currentSite = getCurrentAttendanceSite();
+
+		Map<String, AttendanceUserStats> userStats = dao.getAllAttendanceUserStats(currentSite,
+											   recordsToUpdate
+											   .stream()
+											   .map(aR -> aR.getUserID())
+											   .collect(Collectors.toList()));
+
 		Status oldStatus;
 		int present =0, unexcused =0, excused =0, late=0, leftEarly =0;
 		for(AttendanceRecord aR : recordsToUpdate) {
@@ -271,8 +280,8 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 				leftEarly++;
 			}
 			aR.setStatus(s);
-			updateUserStats(aR, oldStatus);
-			regradeForAttendanceRecord(aR);
+			updateUserStats(userStats, aR, oldStatus);
+			regradeForAttendanceRecord(currentSite, aR);
 		}
 
 		AttendanceItemStats itemStats = getStatsForEvent(aE);
@@ -714,15 +723,17 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 			return;
 		}
 
-		updateUserStats(aR, oldStatus);
+		Map<String, AttendanceUserStats> userStats = dao.getAllAttendanceUserStats(aR.getAttendanceEvent().getAttendanceSite(),
+											   Arrays.asList(new String[] { aR.getUserID() }));
+		updateUserStats(userStats, aR, oldStatus);
 
 		AttendanceEvent aE = aR.getAttendanceEvent();
 		AttendanceItemStats itemStats = getStatsForEvent(aE);
 		updateStats(null, itemStats, oldStatus, aR.getStatus());
 	}
 
-	private boolean updateUserStats(AttendanceRecord record, Status oldStatus) {
-		AttendanceUserStats userStats = dao.getAttendanceUserStats(record.getUserID(), record.getAttendanceEvent().getAttendanceSite());
+	private boolean updateUserStats(Map<String, AttendanceUserStats> userStatsTable, AttendanceRecord record, Status oldStatus) {
+		AttendanceUserStats userStats = userStatsTable.get(record.getUserID());
 		if(userStats == null) { // assume null userStats means stats haven't been calculated yet
 			userStats = new AttendanceUserStats(record.getUserID(), record.getAttendanceEvent().getAttendanceSite());
 		}
@@ -779,8 +790,7 @@ public class AttendanceLogicImpl implements AttendanceLogic {
 		}
 	}
 
-	private void regradeForAttendanceRecord(AttendanceRecord attendanceRecord) {
-		final AttendanceSite currentSite = getCurrentAttendanceSite();
+	private void regradeForAttendanceRecord(final AttendanceSite currentSite, AttendanceRecord attendanceRecord) {
 		// Auto grade if valid record, maximum points is set, and auto grade is enabled
 		if (attendanceRecord != null && currentSite.getMaximumGrade() != null && currentSite.getMaximumGrade() > 0 && currentSite.getUseAutoGrading()) {
 			final String userId = attendanceRecord.getUserID();
